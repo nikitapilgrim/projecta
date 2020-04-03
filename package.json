@@ -1,0 +1,27 @@
+{
+  "name": "with-styled-components",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@reatom/core": "^1.1.1",
+    "@reatom/react": "^1.1.0",
+    "array-move": "^2.2.1",
+    "next": "latest",
+    "rc-slider": "^9.2.4",
+    "react": "^16.7.0",
+    "react-beautiful-dnd": "^13.0.0",
+    "react-dom": "^16.7.0",
+    "react-slider": "^1.0.3",
+    "react-spring": "^9.0.0-beta.34",
+    "react-use-gesture": "^7.0.9",
+    "styled-components": "^5.0.1"
+  },
+  "devDependencies": {
+    "babel-plugin-styled-components": "^1.8.0"
+  },
+  "license": "ISC"
+}
