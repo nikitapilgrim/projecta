@@ -3,6 +3,9 @@ import styled from 'styled-components'
 import { useSpring, useSprings, animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 const arrayMove = require('array-move');
+import {Switcher} from "./Switcher";
+import {PlusSvg} from "../assets/PlusSvg";
+import {FileImportSvg} from "../assets/FileImport";
 
 const Wrapper = styled(animated.div)`
   position: absolute;
@@ -10,12 +13,21 @@ const Wrapper = styled(animated.div)`
   top: 5vh;
   z-index: 2;
   min-height: 600px;
-  width: 200px;
-  background-color: white;
+  width: 105px;
+  height: 663px;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.16);
+  background-color: #ffffff;
+  user-select: none;
 `;
 
 const Header = styled.div`
-  background-color: #666666;
+   background-color: #666666;
+    color: #ffffff;
+    font-family: "Roboto Condensed";
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
 `;
 
 const Actions = styled.div`
@@ -24,10 +36,17 @@ const Actions = styled.div`
     align-items: center;
 `
 
-const FakeBtn = styled.div`
-  width: 30px;
-  height: 30px;
-  background-color: red;
+const Button = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  span {
+  color: #666666;
+font-family: "Roboto Condensed";
+font-size: 12px;
+font-weight: 400;
+  }
 `
 
 const Page = styled.div`
@@ -37,6 +56,15 @@ const Page = styled.div`
   &:not(:first-child) {
     margin-top: 10px;
   }
+`;
+
+const Top = styled.div`
+   padding: 16px;
+`
+
+const SwitcherWrapper = styled.div`
+  padding: 0 10px;
+
 `;
 
 // Returns fitting styles for dragged/idle items
@@ -66,10 +94,22 @@ export const Pages = () => {
     return (
         <Wrapper {...bind()} style={{ x, y }}>
             <Header>Stranice</Header>
-            <Actions>
-                <FakeBtn> </FakeBtn>
-                <FakeBtn> </FakeBtn>
-            </Actions>
+            <Top>
+                <Actions>
+                    <Button>
+                        <PlusSvg/>
+                        <span>Nova</span>
+                    </Button>
+                    <Button>
+                        <FileImportSvg/>
+                        <span>Import</span>
+                    </Button>
+                </Actions>
+            </Top>
+            <SwitcherWrapper>
+                <Switcher/>
+            </SwitcherWrapper>
+
             <DraggableList items={[1,2,3,4,5,6]}/>
 
         </Wrapper>

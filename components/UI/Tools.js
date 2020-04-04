@@ -3,50 +3,49 @@ import styled from 'styled-components'
 import { useSpring, animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import {Zoom} from "./Zoom";
+import {Tool} from "./Tool";
+
+const toolsIcons = {
+    image: require("./assets/image-active.svg").default,
+    sound: require("./assets/sound-active.svg").default,
+    text: require("./assets/text-active.svg").default,
+    video: require("./assets/video-active.svg").default,
+    warning: require("./assets/warning-small.svg").default,
+};
 
 const Wrapper = styled(animated.div)`
   position: absolute;
   left: 5vw;
   top: 5vh;
   z-index: 2;
-  min-height: 600px;
   width: 50px;
-  background-color: white;
+    height: 473px;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.16);
+    background-color: #ffffff;
+  user-select: none;
 
 `
 
 const Header = styled.div`
   background-color: #666666;
+    color: #ffffff;
+    font-family: "Roboto Condensed";
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
 `
 
-const T = styled.div`
-  width: 32px;
-  height: 32px;
-  background-color: black;
-`;
 
 const List = styled.div`
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
 `;
 
-const ToolWrapper = styled(animated.div)`
-  &:not(:first-child) {
-    margin-top: 10px;
-  }
-`;
-
-const Tool = ({children}) => {
-    const [{ x, y }, set] = useSpring(() => ({ x: 0, y: 0 }))
-    const bind = useDrag(({ down, movement: [mx, my] }) => {
-        set({ x: down ? mx : 0, y: down ? my : 0 })
-    })
-
-    return (
-        <ToolWrapper {...bind()} style={{ x, y }}>
-            {children}
-        </ToolWrapper>
-    )
-};
 
 export const Tools = () => {
     const [{ x, y }, set] = useSpring(() => ({ x: 0, y: 0 }));
@@ -69,18 +68,10 @@ export const Tools = () => {
                 Alatke
             </Header>
             <List className={'ui-tools'}>
-                <Tool>
-                    <T/>
-                </Tool>
-                <Tool>
-                    <T/>
-                </Tool>
-                <Tool>
-                    <T/>
-                </Tool>
-                <Tool>
-                    <T/>
-                </Tool>
+                <Tool icon={toolsIcons.image} name={'Slika'}/>
+                <Tool icon={toolsIcons.sound} name={'Zvuk'}/>
+                <Tool icon={toolsIcons.video} name={'Video'}/>
+                <Tool icon={toolsIcons.text} name={'Tekst'}/>
 
             </List>
            <Zoom/>

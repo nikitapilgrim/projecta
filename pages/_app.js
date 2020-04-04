@@ -7,12 +7,15 @@ import { context } from '@reatom/react'
 import slider from 'rc-slider/assets/index.css';
 
 const GlobalStyle = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap');
   
+ 
   html, body, #__next {
     min-height: 100vh;
   }
   body {
     background-color: #CCCCCC;
+    font-family: 'Roboto Condensed', sans-serif;
   }
   /* Box sizing rules */
 *,

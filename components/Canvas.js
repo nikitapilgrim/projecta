@@ -4,13 +4,20 @@ import {useSpring, useSprings, animated} from 'react-spring'
 import {useGesture} from 'react-use-gesture'
 import {context, useAction, useAtom} from "@reatom/react"
 
+import demoimg from './assets/stranica.png'
+
 import {zoomAtom} from "./UI/Zoom";
 
 const Wrapper = styled(animated.div)`
-  height: 80vh;
-  width: 50vw;
+  
   z-index: 0;
   background-color: white;
+  user-select: none;
+  img {
+      max-width: 100%;
+      border: none;
+      height: auto;
+  }
 `;
 
 export const Canvas = () => {
@@ -50,7 +57,7 @@ export const Canvas = () => {
     return (
         <React.Fragment>
             {!hide && <Wrapper ref={domTarget} {...bind()} style={{x, y, scale}}>
-
+                <img src={demoimg} alt=""/>
             </Wrapper>}
         </React.Fragment>
 
