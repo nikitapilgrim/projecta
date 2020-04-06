@@ -7,6 +7,7 @@ import {context, useAction, useAtom} from "@reatom/react"
 import demoimg from './assets/stranica.png'
 
 import {zoomAtom} from "./UI/Zoom";
+import {declareAction, declareAtom} from "@reatom/core";
 
 const Wrapper = styled(animated.div)`
   
@@ -20,11 +21,45 @@ const Wrapper = styled(animated.div)`
   }
 `;
 
+
+const setCanvas = declareAction("setCanvas");
+
+export const canvasAtom = declareAtom({scale: 1}, on => [
+    on(setCanvas, (_state, size) => size),
+]);
+
+const getBoundingClientRect = element => {
+    const {top, right, bottom, left, width, height, x, y} = element.getBoundingClientRect()
+    return {top, right, bottom, left, width, height, x, y}
+}
+
+
 export const Canvas = () => {
     const domTarget = React.useRef(null);
     const zoome = useAtom(zoomAtom);
     const hide = useMemo(() => {
         return zoome > 1.8
+    }, [zoome]);
+
+    const handleSetCanvas = useAction(canvas => setCanvas(canvas))
+
+    useEffect(() => {
+        if (domTarget.current) {
+            const sizes = getBoundingClientRect(domTarget.current);
+            const borders = {
+                left: sizes.x,
+                right: sizes.x + sizes.width,
+                top: sizes.y,
+                bottom: sizes.y + sizes.height
+            };
+            const parameter = {
+                ref: domTarget,
+                borders,
+                sizes: {...sizes},
+                scale: zoome
+            };
+            handleSetCanvas(parameter)
+        }
     }, [zoome]);
 
     const [{x, y, rotateX, rotateY, rotateZ, zoom, scale}, set] = useSpring(() => ({

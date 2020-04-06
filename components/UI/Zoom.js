@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { useSpring, animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import ReactSlider from 'react-slider'
-import Slider, { Range } from 'rc-slider';
+import Slider from 'rc-slider';
 import {context, useAction, useAtom} from "@reatom/react"
 import {declareAction, declareAtom} from '@reatom/core'
 
@@ -37,6 +37,7 @@ const Track = (props, state) => <StyledTrack {...props} index={state.index} />;
 const SliderWrapper = styled.div`
   height: 200px;
 `;
+
 const setZoom = declareAction("setZoom");
 
 export const zoomAtom = declareAtom(1, on => [
