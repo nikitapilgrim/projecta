@@ -1,28 +1,40 @@
-import React, {useRef, useMemo} from 'react'
+import React, {useRef, useMemo, useState} from 'react'
+import ReactDOM from 'react-dom'
 import styled from 'styled-components'
-import { useSpring, animated } from 'react-spring'
-import { useDrag } from 'react-use-gesture'
+import {useSpring, animated} from 'react-spring'
+import {useDrag} from 'react-use-gesture'
 import {canvasAtom} from "../Canvas"
 import {context, useAction, useAtom} from "@reatom/react"
 import {zoomAtom} from "./Zoom";
+import warningIcon from "./assets/warning-small.svg"
 
 const Name = styled.div`
  
 `
 
 const Icon = styled.div`
-  width: 32px;
-  height: 32px;
+  position: relative;
+  width: ${props => props.width || `32px`};
+  height: ${props => props.height || `32px`};;
   background: url("${props => props.url}");
+  background-repeat: no-repeat;
+  background-size: cover;
 `;
 
 
 const Wrapper = styled(animated.div)`
+    position: relative;
     cursor: pointer;
 
   &:not(:first-child) {
     margin-top: 10px;
   }
+`;
+
+const Warning = styled.div`
+   position: absolute;
+   bottom: -3px;
+   left: -3px;
 `;
 
 const overlap = (rect1, rect2) => !(rect1.right < rect2.left ||
@@ -32,18 +44,24 @@ const overlap = (rect1, rect2) => !(rect1.right < rect2.left ||
 
 
 function lowestValueAndKey(obj) {
-    const [lowestItems] = Object.entries(obj).sort(([ ,v1], [ ,v2]) => v1 - v2);
+    const [lowestItems] = Object.entries(obj).sort(([, v1], [, v2]) => v1 - v2);
     return lowestItems[0]
 }
 
 export const Tool = ({icon, name}) => {
-    const [{ x, y }, set] = useSpring(() => ({ x: 0, y: 0 }));
+    const [{x, y}, set] = useSpring(() => ({x: 0, y: 0}));
     const canvas = useAtom(canvasAtom);
     const target = useRef(null);
-    
+    const [attached, setAttached] = useState(false);
+    const lastPosition = useRef(null);
 
-
-    const bind = useDrag(({ down, movement: [mx, my], offset: [x, y] }) => {
+    const bind = useDrag(({
+                              down,
+                              movement: [mx, my],
+                              offset: [x, y],
+                              xy,
+                              previous
+    }) => {
         const sizes = target.current.getBoundingClientRect();
         const size = {
             left: sizes.x,
@@ -61,7 +79,7 @@ export const Tool = ({icon, name}) => {
 
 
         if (overlaped) {
-            const prepare = Object.entries(canvas.sizes).reduce((acc,pair) => {
+            const prepare = Object.entries(canvas.sizes).reduce((acc, pair) => {
                 const [key] = pair;
                 let newValue = 0;
 
@@ -70,7 +88,7 @@ export const Tool = ({icon, name}) => {
                 if (key === 'right' || key === 'bottom') {
                     newValue = Math.abs(sizes[key] - canvas.sizes[key]);
                 }
-            //only x axis
+                //only x axis
                 if (key === 'top' || key === 'bottom') return acc;
                 return {
                     ...acc,
@@ -82,20 +100,29 @@ export const Tool = ({icon, name}) => {
             if (!down) {
                 const direction = lowestValueAndKey(prepare);
                 set({ x: to[direction], y: my });
+                setAttached(true);
             }
             if (down) set({ x: mx, y: my})
         }
-        if (!overlaped) set({ x: down ? mx : 0, y: down ? my : 0 })
+        if (!overlaped) {
+            setAttached(false)
+            set({ x: down ? mx : 0, y: down ? my : 0 })
+        }
     });
 
 
 
     return (
-        <Wrapper ref={target} {...bind()} style={{ x, y, scale:canvas.scale }}>
-            <Icon url={icon}/>
+        <Wrapper ref={target} {...bind()} style={{x, y, scale: canvas.scale}}>
+            <Icon url={icon}>
+                {attached && <Warning>
+                    <Icon width={'16px'} height={'16px'} url={warningIcon}/>
+                </Warning>}
+            </Icon>
             <Name>
                 {name}
             </Name>
+            
         </Wrapper>
     )
 };

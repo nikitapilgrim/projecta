@@ -21,6 +21,9 @@ export default () => {
             <Tools/>
             <Pages/>
             <Canvas/>
+            <div id={'modals'}>
+
+            </div>
         </Wrapper>
     )
 }
