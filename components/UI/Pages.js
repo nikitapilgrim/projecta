@@ -1,20 +1,27 @@
-import React, {useRef} from 'react'
+import React, {useRef,useState} from 'react'
 import styled from 'styled-components'
-import { useSpring, useSprings, animated } from 'react-spring'
-import { useDrag } from 'react-use-gesture'
+import {useSpring, useSprings, animated} from 'react-spring'
+import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
+
+import {useDrag} from 'react-use-gesture'
+
 const arrayMove = require('array-move');
+import {Icon} from "../Icon";
 import {Switcher} from "./Switcher";
 import {PlusSvg} from "../assets/PlusSvg";
 import {FileImportSvg} from "../assets/FileImport";
+import deleteSvg from "../assets/Icon_awesome-file-import.svg";
+import fileImportSvg from "../assets/Icon_material-delete-forever.svg";
+import arrowSvg from "./assets/Icon_material-play-arrow.svg";
+
 
 const Wrapper = styled(animated.div)`
   position: absolute;
   right: 5vw;
-  top: 5vh;
+  top: 10vh;
   z-index: 2;
-  min-height: 600px;
+  min-height: 400px;
   width: 105px;
-  height: 663px;
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.16);
   background-color: #ffffff;
   user-select: none;
@@ -49,15 +56,6 @@ font-weight: 400;
   }
 `
 
-const Page = styled.div`
-  width: 80px;
-  height: 80px;
-  background-color: gray;
-  &:not(:first-child) {
-    margin-top: 10px;
-  }
-`;
-
 const Top = styled.div`
    padding: 16px;
 `
@@ -67,32 +65,49 @@ const SwitcherWrapper = styled.div`
 
 `;
 
-// Returns fitting styles for dragged/idle items
-const fn = (order, down, originalIndex, curIndex, y) => index =>
-    down && index === originalIndex
-        ? { y: curIndex * 100 + y, scale: 1.1, zIndex: '1', shadow: 15, immediate: n => n === 'y' || n === 'zIndex' }
-        : { y: order.indexOf(index) * 100, scale: 1, zIndex: '0', shadow: 1, immediate: false };
+// fake data generator
+const getItems = count =>
+    Array.from({length: count}, (v, k) => k).map(k => ({
+        active: true,
+        id: `Stranica-${k + 1}`,
+        content: `Stranica-${k + 1}`,
+        vertical: k % 4 === 0
+    }));
 
-const clamp = (val,min, max) => Math.min(Math.max(min, val), max)
+const grid = 12;
+
+const getItemStyle = (isDragging, draggableStyle) => ({
+    // some basic styles to make the items look a bit nicer
+    userSelect: "none",
+
+
+    ...draggableStyle
+});
+
+const getListStyle = isDraggingOver => ({
+    padding: grid,
+    width: "100%"
+});
+
 
 
 export const Pages = () => {
-    const [{ x, y }, set] = useSpring(() => ({ x: 0, y: 0 }));
+    const [{x, y}, set] = useSpring(() => ({x: 0, y: 0}));
     const memoryCancel = useRef(false);
-    const bind = useDrag(({ offset: [x, y], event,cancel, down }) => {
+    const bind = useDrag(({offset: [x, y], event, cancel, down}) => {
         const target = event.target;
-        if (!memoryCancel.current && target && target.closest('.ui-pages')) {
+        if (!memoryCancel.current && target && target.closest && target.closest('.ui-pages')) {
             memoryCancel.current = true;
             cancel();
         }
         if (!down) {
             memoryCancel.current = false;
         }
-        if (!memoryCancel.current) set({ x, y })
+        if (!memoryCancel.current) set({x, y})
     });
 
     return (
-        <Wrapper {...bind()} style={{ x, y }}>
+        <Wrapper {...bind()} style={{x, y}}>
             <Header>Stranice</Header>
             <Top>
                 <Actions>
@@ -110,37 +125,143 @@ export const Pages = () => {
                 <Switcher/>
             </SwitcherWrapper>
 
-            <DraggableList items={[1,2,3,4,5,6]}/>
+            <DraggableList items={[1, 2, 3, 4, 5, 6]}/>
 
         </Wrapper>
     )
 };
 
-function DraggableList({ items }) {
-    const order = useRef(items.map((_, index) => index)) // Store indicies as a local ref, this represents the item order
-    const [springs, setSprings] = useSprings(items.length, fn(order.current)) // Create springs, each corresponds to an item, controlling its transform, scale, etc.
-    const bind = useDrag(({ args: [originalIndex], down, movement: [, y] }) => {
-        const curIndex = order.current.indexOf(originalIndex)
-        const curRow = clamp(Math.round((curIndex * 100 + y) / 100), 0, items.length - 1)
-        const newOrder = arrayMove(order.current, curIndex, curRow)
-        setSprings(fn(newOrder, down, originalIndex, curIndex, y)) // Feed springs new style data, they'll animate the view without causing a single render
-        if (!down) order.current = newOrder
-    })
+function DraggableList({items}) {
+    const [elems, setElems] = useState(getItems(4));
+
+    const onDragEnd = (result) => {
+        // dropped outside the list
+        if (!result.destination) {
+            return;
+        }
+        const items = arrayMove(elems,
+            result.source.index,
+            result.destination.index)
+
+        setElems(items);
+        
+    }
+
     return (
-        <div className="ui-pages" >
-            {springs.map(({ zIndex, shadow, y, scale }, i) => (
-                <animated.div
-                    {...bind(i)}
-                    key={i}
-                    style={{
-                        zIndex,
-                        boxShadow: shadow.to(s => `rgba(0, 0, 0, 0.15) 0px ${s}px ${2 * s}px 0px`),
-                        y,
-                        scale
-                    }}>
-                    <Page></Page>
-                </animated.div>
-            ))}
+        <div className="ui-pages">
+            <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="droppable">
+                    {(provided, snapshot) => (
+                        <div
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                            style={getListStyle(snapshot.isDraggingOver)}
+                        >
+                            {elems.map((item, index) => (
+                                <Draggable key={item.id} draggableId={item.id} index={index}>
+                                    {(provided, snapshot) => (
+                                        <Page data={item} provided={provided} snapshot={snapshot}/>
+                                    )}
+                                </Draggable>
+                            ))}
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
+            </DragDropContext>
         </div>
+    )
+}
+
+
+const PageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: ${props => props.active ? `#e6eaff` : ``};
+
+  &:not(:first-child) {
+    margin-top: 10px;
+  }
+`;
+
+const PageHoriz = styled.div`
+    width: 81px;
+    height: 53px;
+    background-color: #cccccc;
+`
+
+const PageVert = styled.div`
+width: 53px;
+height: 81px;
+background-color: #cccccc;
+`
+
+const PageControlls = styled.div`
+  display: flex;
+  align-items: center;
+  
+
+`
+
+const TopBottom = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 2px
+ 
+`
+const ArrowTop = styled(Icon)`
+  transform: rotate(90deg);
+`
+const ArrowBottom = styled(Icon)`
+  transform: rotate(-90deg);
+
+`
+const PageName = styled.div`
+color: #666666;
+font-family: "Roboto Condensed";
+font-size: 10px;
+font-weight: 400;
+`
+
+const PageBottom = styled.div`
+    width: 110%;
+    display: flex;
+    justify-content: space-between;
+    
+    
+`;
+
+
+const Page = ({data, provided, snapshot}) => {
+    const {content, vertical} = data;
+
+    return (
+        <PageWrapper
+
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            style={getItemStyle(
+                snapshot.isDragging,
+                provided.draggableProps.style
+            )}
+        >
+            {vertical ? <PageVert/> : <PageHoriz/>}
+            <PageBottom>
+                <PageName>{content}</PageName>
+                <PageControlls>
+                    <Icon width={'9px'} height={'10px'} url={fileImportSvg}/>
+                    <TopBottom>
+                        <ArrowTop width={'4px'} height={'5px'} url={arrowSvg}/>
+                        <ArrowBottom width={'4px'} height={'5px'} url={arrowSvg}/>
+                    </TopBottom>
+                    <Icon width={'9px'} height={'10px'} url={deleteSvg}/>
+                </PageControlls>
+            </PageBottom>
+        </PageWrapper>
     )
 }

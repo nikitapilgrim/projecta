@@ -12,7 +12,6 @@ const GlobalStyle = createGlobalStyle`
  
   html, body, #__next {
     min-height: 100vh;
-    overflow: hidden;
   }
   body {
     background-color: #CCCCCC;
@@ -104,6 +103,13 @@ img:not([alt]) {
   }
 }
 ${slider}
+.rc-slider-handle {
+  width: 15px;
+    height: 16px;
+    border: 1px solid #666666 !important;
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+}
 `;
 
 const theme = {

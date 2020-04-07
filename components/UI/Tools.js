@@ -14,9 +14,14 @@ const toolsIcons = {
 };
 
 const Wrapper = styled(animated.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 23px;
+  
   position: absolute;
   left: 5vw;
-  top: 5vh;
+  top: 10vh;
   z-index: 2;
   width: 50px;
     height: 473px;
@@ -27,6 +32,7 @@ const Wrapper = styled(animated.div)`
 `
 
 const Header = styled.div`
+  width: 100%;
   background-color: #666666;
     color: #ffffff;
     font-family: "Roboto Condensed";
@@ -68,10 +74,10 @@ export const Tools = () => {
                 Alatke
             </Header>
             <List className={'ui-tools'}>
-                <Tool icon={toolsIcons.image} name={'Slika'}/>
-                <Tool icon={toolsIcons.sound} name={'Zvuk'}/>
-                <Tool icon={toolsIcons.video} name={'Video'}/>
-                <Tool icon={toolsIcons.text} name={'Tekst'}/>
+                <Tool icon={toolsIcons.image} type={'Slika'}/>
+                <Tool icon={toolsIcons.sound} type={'Zvuk'}/>
+                <Tool icon={toolsIcons.video} type={'Video'}/>
+                <Tool icon={toolsIcons.text} type={'Tekst'}/>
 
             </List>
            <Zoom/>

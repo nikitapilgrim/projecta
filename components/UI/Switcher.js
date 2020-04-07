@@ -19,7 +19,7 @@ const Arrow = styled.div`
 const Input = styled.input`
 border: 1px solid #e6eaff;
 background-color: #f2f2f2;
-padding: 4px;
+padding: 3px;
 flex-shrink: 1;
 max-width: 26px;
 color: #666666;
@@ -33,9 +33,9 @@ export const Switcher = () => {
     return (
         <Wrapper>
             <Arrow/>
-            <Input/>
+            <Input value={43}/>
             /
-            <Input/>
+            <Input value={113}/>
             <Arrow right={true}/>
 
         </Wrapper>

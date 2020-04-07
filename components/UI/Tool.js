@@ -1,6 +1,6 @@
-import React, {useRef, useMemo, useState} from 'react'
-import ReactDOM from 'react-dom'
+import React, {useRef, useMemo, useState, useEffect} from 'react'
 import styled from 'styled-components'
+import {Modal} from "./modals/Modal";
 import {useSpring, animated} from 'react-spring'
 import {useDrag} from 'react-use-gesture'
 import {canvasAtom} from "../Canvas"
@@ -48,12 +48,21 @@ function lowestValueAndKey(obj) {
     return lowestItems[0]
 }
 
-export const Tool = ({icon, name}) => {
-    const [{x, y}, set] = useSpring(() => ({x: 0, y: 0}));
+
+
+export const Tool = ({icon, type}) => {
+    const [{x, y, scale}, set] = useSpring(() => ({x: 0, y: 0, scale: 1}));
     const canvas = useAtom(canvasAtom);
     const target = useRef(null);
     const [attached, setAttached] = useState(false);
     const lastPosition = useRef(null);
+
+    useEffect(() => {
+        if (attached) {
+            set({scale: canvas.scale})
+        }
+        if (!attached) set({scale: 1})
+    }, [canvas, attached]);
 
     const bind = useDrag(({
                               down,
@@ -61,7 +70,7 @@ export const Tool = ({icon, name}) => {
                               offset: [x, y],
                               xy,
                               previous
-    }) => {
+                          }) => {
         const sizes = target.current.getBoundingClientRect();
         const size = {
             left: sizes.x,
@@ -99,30 +108,29 @@ export const Tool = ({icon, name}) => {
 
             if (!down) {
                 const direction = lowestValueAndKey(prepare);
-                set({ x: to[direction], y: my });
+                set({x: to[direction], y: my});
                 setAttached(true);
             }
-            if (down) set({ x: mx, y: my})
+            if (down) set({x: mx, y: my})
         }
         if (!overlaped) {
             setAttached(false)
-            set({ x: down ? mx : 0, y: down ? my : 0 })
+            set({x: down ? mx : 0, y: down ? my : 0})
         }
     });
 
 
-
     return (
-        <Wrapper ref={target} {...bind()} style={{x, y, scale: canvas.scale}}>
+        <Wrapper ref={target} {...bind()} style={{x, y, scale}}>
             <Icon url={icon}>
                 {attached && <Warning>
                     <Icon width={'16px'} height={'16px'} url={warningIcon}/>
                 </Warning>}
             </Icon>
             <Name>
-                {name}
+                {type}
             </Name>
-            
+
         </Wrapper>
     )
 };

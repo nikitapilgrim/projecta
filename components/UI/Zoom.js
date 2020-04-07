@@ -35,8 +35,27 @@ const StyledTrack = styled.div`
 const Track = (props, state) => <StyledTrack {...props} index={state.index} />;
 
 const SliderWrapper = styled.div`
-  height: 200px;
+  flex-grow: 1;
+  margin-top: 23px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
+
+const Name = styled.div`
+  color: #666666;
+font-family: "Roboto Condensed";
+font-size: 13px;
+font-weight: 700;
+`
+
+const Percentage = styled.div`
+color: #666666;
+font-family: "Roboto Condensed";
+font-size: 11px;
+font-weight: 300;
+`
 
 const setZoom = declareAction("setZoom");
 
@@ -46,10 +65,17 @@ export const zoomAtom = declareAtom(1, on => [
 
 
 export const Zoom = () => {
+    const zoom = useAtom(zoomAtom);
     const handleChangeZoom = useAction(factor => setZoom(factor));
 
     return (
         <SliderWrapper>
+            <Name>
+                Zoom
+            </Name>
+            <Percentage>
+                {Math.round(zoom * 100)}%
+            </Percentage>
             <Slider vertical min={0.2} max={2} step={0.1} included={false} onChange={handleChangeZoom} defaultValue={1} />
         </SliderWrapper>
     )
