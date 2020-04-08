@@ -3,6 +3,9 @@ import styled from 'styled-components'
 import {useSpring, useSprings, animated} from 'react-spring'
 import {useGesture} from 'react-use-gesture'
 import {context, useAction, useAtom} from "@reatom/react"
+import useWindowSize from '@rehooks/window-size';
+import useSSR from "use-ssr/dist/useSSR";
+
 
 import demoimg from './assets/stranica.png'
 
@@ -40,11 +43,13 @@ export const Canvas = () => {
     const hide = useMemo(() => {
         return zoome > 1.8
     }, [zoome]);
+    const {isBrowser} = useSSR();
+    let windowSize = isBrowser ? useWindowSize(): null;
 
     const handleSetCanvas = useAction(canvas => setCanvas(canvas))
 
     useEffect(() => {
-        if (domTarget.current) {
+        if (domTarget.current && isBrowser) {
             const sizes = getBoundingClientRect(domTarget.current);
             const borders = {
                 left: sizes.x,
@@ -60,7 +65,7 @@ export const Canvas = () => {
             };
             handleSetCanvas(parameter)
         }
-    }, [zoome]);
+    }, [zoome, windowSize, isBrowser]);
 
     const [{x, y, rotateX, rotateY, rotateZ, zoom, scale}, set] = useSpring(() => ({
         rotateX: 0,

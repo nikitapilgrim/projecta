@@ -9,6 +9,7 @@
   "dependencies": {
     "@reatom/core": "^1.1.1",
     "@reatom/react": "^1.1.0",
+    "@rehooks/window-size": "^1.0.2",
     "array-move": "^2.2.1",
     "nanoid": "^3.0.2",
     "next": "latest",
