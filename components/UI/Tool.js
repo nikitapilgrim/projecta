@@ -78,12 +78,12 @@ const DraggedIcon = memo(({url, update, data}) => {
 
     const bind = useDrag(({
                               down,
-                              movement: [mx, my],
-                              offset: [x, y],
+                              movement: [x, y],
+                              offset: [mx, my],
                               xy,
                               previous
                           }) => {
-        const sizes = target.current.getBoundingClientRect();
+        const sizes = getBoundingClientRect(target.current);
         const size = {
             left: sizes.x,
             right: sizes.x + sizes.width,
@@ -118,13 +118,20 @@ const DraggedIcon = memo(({url, update, data}) => {
                     [key]: newValue
                 }
             }, {});
-            console.log(mx, prepare)
+            const percentage = {
+                left: prepare.left / canvasSizes.width * 100,
+                right: prepare.right / canvasSizes.width * 100
+            };
 
 
-
-            if (!down) {
+            if (!down && percentage[lowestValueAndKey(percentage)] < 10) {
                 const direction = lowestValueAndKey(prepare);
                 set({x: to[direction], y: my});
+                if (!attached) update({type: 'add'});
+                update({type: 'attach'});
+            }
+            if (!down && percentage[lowestValueAndKey(percentage)] > 10) {
+                set({x: mx, y: my});
                 if (!attached) update({type: 'add'});
                 update({type: 'attach'});
             }
