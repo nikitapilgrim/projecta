@@ -10,6 +10,7 @@
     "@reatom/core": "^1.1.1",
     "@reatom/react": "^1.1.0",
     "array-move": "^2.2.1",
+    "nanoid": "^3.0.2",
     "next": "latest",
     "next-images": "^1.4.0",
     "rc-slider": "^9.2.4",

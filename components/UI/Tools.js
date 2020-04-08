@@ -1,9 +1,12 @@
-import React, {useRef} from 'react'
+import React, {useRef, useState, useReducer} from 'react'
 import styled from 'styled-components'
-import { useSpring, animated } from 'react-spring'
-import { useDrag } from 'react-use-gesture'
+import {useSpring, animated} from 'react-spring'
+import {useDrag} from 'react-use-gesture'
 import {Zoom} from "./Zoom";
 import {Tool} from "./Tool";
+import {useAtom} from "@reatom/react";
+import {canvasAtom} from "../Canvas";
+import {nanoid} from 'nanoid'
 
 const toolsIcons = {
     image: require("./assets/image-active.svg").default,
@@ -52,11 +55,59 @@ const List = styled.div`
 
 `;
 
+const getInitialState = () => ({
+    attached: false,
+    id: nanoid()
+});
+
+const globalInitialState = {
+    sound: [getInitialState()],
+    video: [getInitialState()],
+    text: [getInitialState()],
+    image: [getInitialState()]
+};
+
+const changePropertyById = (state, id, type, prop, value) => {
+    let newState = state[type].map(item => {
+        if (item.id === id) {
+            item[prop] = value
+        }
+        return item
+    });
+    return {...state, newState}
+};
+
+const removeElemById = (state, id, type) => {
+    let copy = {...state};
+    copy[type] = copy[type].filter(item => item.id !== id);
+    return copy
+};
+
+
+function reducer(state, action) {
+    switch (action.type) {
+        case 'add':
+            return {...state, [action.elem]: [...state[action.elem], getInitialState()]};
+        case 'attach':
+            return changePropertyById(state, action.id, action.elem, 'attached', true);
+        case 'unattach':
+            return changePropertyById(state, action.id, action.elem, 'attached', false);
+        case 'remove':
+            if (state[action.elem].length <= 1) return state
+            return removeElemById(state, action.id, action.elem);
+        default:
+
+    }
+    console.log(state)
+}
+
 
 export const Tools = () => {
-    const [{ x, y }, set] = useSpring(() => ({ x: 0, y: 0 }));
+    const [{x, y}, set] = useSpring(() => ({x: 0, y: 0}));
+    const [stateTools, dispatch] = useReducer(reducer, globalInitialState);
+
     const memoryTarget = useRef(false);
-    const bind = useDrag(({ offset: [x, y], event,cancel, down }) => {
+    const bind = useDrag(({offset: [x, y], event, cancel, down}) => {
         const target = event.target;
         if (!memoryTarget.current) memoryTarget.current = target;
         if (memoryTarget.current && memoryTarget.current.closest('.ui-tools')) {
@@ -65,22 +116,25 @@ export const Tools = () => {
         if (!down) {
             memoryTarget.current = false;
         }
-        set({ x, y })
+        set({x, y})
     });
 
     return (
-        <Wrapper {...bind()} style={{ x, y }}>
+        <Wrapper {...bind()} style={{x, y}}>
             <Header>
                 Alatke
             </Header>
             <List className={'ui-tools'}>
-                <Tool icon={toolsIcons.image} type={'Slika'}/>
-                <Tool icon={toolsIcons.sound} type={'Zvuk'}/>
-                <Tool icon={toolsIcons.video} type={'Video'}/>
-                <Tool icon={toolsIcons.text} type={'Tekst'}/>
-
+                <Tool stateTools={stateTools.image} type={'image'} dispatch={dispatch} icon={toolsIcons.image}
+                      name={'Slika'}/>
+                <Tool stateTools={stateTools.sound} type={'sound'} dispatch={dispatch} icon={toolsIcons.sound}
+                      name={'Zvuk'}/>
+                <Tool stateTools={stateTools.video} type={'video'} dispatch={dispatch} icon={toolsIcons.video}
+                      name={'Video'}/>
+                <Tool stateTools={stateTools.text} type={'text'} dispatch={dispatch} icon={toolsIcons.text}
+                      name={'Tekst'}/>
             </List>
-           <Zoom/>
+            <Zoom/>
 
         </Wrapper>
     )

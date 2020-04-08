@@ -1,4 +1,5 @@
-import React, {useRef, useMemo, useState, useEffect} from 'react'
+import React, {useRef, useMemo, useState, useEffect, memo, useCallback} from 'react'
+import usePortal from 'react-useportal'
 import styled from 'styled-components'
 import {Modal} from "./modals/Modal";
 import {useSpring, animated} from 'react-spring'
@@ -12,8 +13,9 @@ const Name = styled.div`
  
 `
 
-const Icon = styled.div`
-  position: relative;
+const Icon = styled(animated.div)`
+  position: absolute;
+  top: 0;
   width: ${props => props.width || `32px`};
   height: ${props => props.height || `32px`};;
   background: url("${props => props.url}");
@@ -21,10 +23,18 @@ const Icon = styled.div`
   background-size: cover;
 `;
 
+const WarringIcon = styled(Icon)`
 
-const Wrapper = styled(animated.div)`
+`
+
+const Wrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     position: relative;
     cursor: pointer;
+    height: 50px;
+    width: 32px;
 
   &:not(:first-child) {
     margin-top: 10px;
@@ -33,7 +43,7 @@ const Wrapper = styled(animated.div)`
 
 const Warning = styled.div`
    position: absolute;
-   bottom: -3px;
+   bottom: 12px;
    left: -3px;
 `;
 
@@ -48,15 +58,11 @@ function lowestValueAndKey(obj) {
     return lowestItems[0]
 }
 
-
-
-export const Tool = ({icon, type}) => {
-    const [{x, y, scale}, set] = useSpring(() => ({x: 0, y: 0, scale: 1}));
+const DraggedIcon = memo(({url, update, data}) => {
     const canvas = useAtom(canvasAtom);
     const target = useRef(null);
-    const [attached, setAttached] = useState(false);
-    const lastPosition = useRef(null);
-
+    const {attached} = data;
+    const [{x, y, scale}, set] = useSpring(() => ({x: 0, y: 0, scale: 1}));
     useEffect(() => {
         if (attached) {
             set({scale: canvas.scale})
@@ -109,28 +115,44 @@ export const Tool = ({icon, type}) => {
             if (!down) {
                 const direction = lowestValueAndKey(prepare);
                 set({x: to[direction], y: my});
-                setAttached(true);
+                if (!attached) update({type: 'add'});
+                update({type: 'attach'});
             }
             if (down) set({x: mx, y: my})
         }
         if (!overlaped) {
-            setAttached(false)
+            if (!down) {
+                update({type: 'unattach'});
+                update({type: 'remove'});
+            }
             set({x: down ? mx : 0, y: down ? my : 0})
         }
     });
 
 
     return (
-        <Wrapper ref={target} {...bind()} style={{x, y, scale}}>
-            <Icon url={icon}>
-                {attached && <Warning>
-                    <Icon width={'16px'} height={'16px'} url={warningIcon}/>
-                </Warning>}
-            </Icon>
-            <Name>
-                {type}
-            </Name>
+        <Icon ref={target} url={url} {...bind()} style={{x, y, scale}}>
+            {attached && <Warning>
+                <Icon width={'16px'} height={'16px'} url={warningIcon}/>
+            </Warning>}
+        </Icon>
+    )
+});
 
+
+export const Tool = ({icon, type, name, stateTools, dispatch}) => {
+    const lastPosition = useRef(null);
+    const update = useCallback(id => (action) => dispatch({id, elem: type, ...action}), []);
+
+    return (
+        <Wrapper>
+            {stateTools.map((item) => {
+                return <DraggedIcon data={item} update={update(item.id)} key={item.id} url={icon}/>
+            })}
+
+            <Name>
+                {name}
+            </Name>
         </Wrapper>
     )
 };
