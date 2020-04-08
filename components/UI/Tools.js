@@ -93,7 +93,7 @@ function reducer(state, action) {
         case 'unattach':
             return changePropertyById(state, action.id, action.elem, 'attached', false);
         case 'remove':
-            if (state[action.elem].length <= 1) return state
+            if (!state[action.elem].every(elem => elem.attached)) return state
             return removeElemById(state, action.id, action.elem);
         default:
 

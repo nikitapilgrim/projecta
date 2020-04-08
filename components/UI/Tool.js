@@ -53,6 +53,12 @@ const overlap = (rect1, rect2) => !(rect1.right < rect2.left ||
     rect1.top > rect2.bottom);
 
 
+const getBoundingClientRect = element => {
+    const {top, right, bottom, left, width, height, x, y} = element.getBoundingClientRect()
+    return {top, right, bottom, left, width, height, x, y}
+}
+
+
 function lowestValueAndKey(obj) {
     const [lowestItems] = Object.entries(obj).sort(([, v1], [, v2]) => v1 - v2);
     return lowestItems[0]
@@ -94,14 +100,16 @@ const DraggedIcon = memo(({url, update, data}) => {
 
 
         if (overlaped) {
-            const prepare = Object.entries(canvas.sizes).reduce((acc, pair) => {
+            let snap = false;
+            const canvasSizes = getBoundingClientRect(canvas.ref.current);
+            const prepare = Object.entries(canvasSizes).reduce((acc, pair) => {
                 const [key] = pair;
                 let newValue = 0;
 
                 if (key === 'height' || key === 'width' || key === 'x' || key === 'y') return acc;
-                newValue = sizes[key] - canvas.sizes[key];
+                newValue = sizes[key] - canvasSizes[key];
                 if (key === 'right' || key === 'bottom') {
-                    newValue = Math.abs(sizes[key] - canvas.sizes[key]);
+                    newValue = Math.abs(sizes[key] - canvasSizes[key]);
                 }
                 //only x axis
                 if (key === 'top' || key === 'bottom') return acc;
@@ -110,6 +118,8 @@ const DraggedIcon = memo(({url, update, data}) => {
                     [key]: newValue
                 }
             }, {});
+            console.log(mx, prepare)
+
 
 
             if (!down) {
