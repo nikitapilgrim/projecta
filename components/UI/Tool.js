@@ -6,7 +6,8 @@ import {useSpring, animated} from 'react-spring'
 import {useDrag} from 'react-use-gesture'
 import {canvasAtom} from "../Canvas"
 import {context, useAction, useAtom} from "@reatom/react"
-import {zoomAtom} from "./Zoom";
+import {zoomAtom} from "./Zoom"
+import {ModalAsPortal} from "./modals/Modal";
 import warningIcon from "./assets/warning-small.svg"
 
 const Name = styled.div`
@@ -64,10 +65,12 @@ function lowestValueAndKey(obj) {
     return lowestItems[0]
 }
 
-const DraggedIcon = memo(({url, update, data}) => {
+const DraggedIcon = memo(({type, url, update, data}) => {
     const {Portal} = usePortal();
     const canvas = useAtom(canvasAtom);
     const target = useRef(null);
+    const draggingIcon = useRef(false);
+    const [modalOpen, setModalOpen] = useState(false);
     const {attached} = data;
     const [{x, y, scale}, set] = useSpring(() => ({x: 0, y: 0, scale: 1}));
     useEffect(() => {
@@ -78,12 +81,25 @@ const DraggedIcon = memo(({url, update, data}) => {
     }, [canvas, attached]);
 
     const bind = useDrag(({
+                              event,
+                              dragging,
                               down,
                               movement: [x, y],
                               offset: [mx, my],
                               xy,
                               previous
                           }) => {
+
+        const targetDrag = event.target;
+
+        if (!dragging) {
+            draggingIcon.current = false
+        }
+        if (dragging) {
+            setTimeout(() => {
+                if (dragging) draggingIcon.current = true
+            }, 200);
+        }
         const sizes = getBoundingClientRect(target.current);
         const size = {
             left: sizes.left,
@@ -147,12 +163,25 @@ const DraggedIcon = memo(({url, update, data}) => {
         }
     });
 
+    const openModal = () => {
+        if (attached && draggingIcon.current === false) {
+            setModalOpen(true)
+        }
+    };
+    const closeModal = () => {
+        setModalOpen(false)
+    };
+
     return (
-        <Icon className={'draggable__icon'} ref={target} url={url} {...bind()} style={{x, y, scale}}>
-            {attached && <Warning>
-                <Icon width={'16px'} height={'16px'} url={warningIcon}/>
-            </Warning>}
-        </Icon>
+        <>
+            <Icon className={'draggable__icon'} ref={target} url={url} {...bind()} style={{x, y, scale}}>
+                {attached && <Warning onClick={openModal}>
+                    <Icon width={'16px'} height={'16px'} url={warningIcon}/>
+                </Warning>}
+            </Icon>
+            <ModalAsPortal type={type} closeModal={closeModal} active={modalOpen}></ModalAsPortal>
+        </>
+
     )
 });
 
@@ -164,7 +193,7 @@ export const Tool = ({icon, type, name, stateTools, dispatch}) => {
     return (
         <Wrapper>
             {stateTools.map((item) => {
-                return <DraggedIcon data={item} update={update(item.id)} key={item.id} url={icon}/>
+                return <DraggedIcon type={type} data={item} update={update(item.id)} key={item.id} url={icon}/>
             })}
             <Name>
                 {name}

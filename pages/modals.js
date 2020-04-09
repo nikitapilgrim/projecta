@@ -39,8 +39,8 @@ export default () => {
             <ModalsWrapper id={'modals'}>
                 <Modal type={'text'} active={true}></Modal>
                 <Modal type={'image'} active={true}></Modal>
-                <Modal type={'audio'} active={true}></Modal>
-                <Modal active={true}></Modal>
+                <Modal type={'sound'} active={true}></Modal>
+                <Modal type={'video'} active={true}></Modal>
             </ModalsWrapper>
         </Wrapper>
     )
