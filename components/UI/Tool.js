@@ -85,17 +85,18 @@ const DraggedIcon = memo(({url, update, data}) => {
                           }) => {
         const sizes = getBoundingClientRect(target.current);
         const size = {
-            left: sizes.x,
-            right: sizes.x + sizes.width,
-            top: sizes.y,
-            bottom: sizes.y + sizes.height
+            left: sizes.left,
+            right: sizes.left + sizes.width,
+            top: sizes.top,
+            bottom: sizes.bottom + sizes.height
         };
+        console.log(sizes)
         const overlaped = overlap(canvas.borders, size);
         const to = {
-            right: canvas.borders.right - sizes.width * 2,
-            left: canvas.borders.left - sizes.width * 2,
-            top: canvas.borders.top - sizes.height * 2,
-            bottom: canvas.borders.bottom + sizes.height * 2
+            right: canvas.borders.right - sizes.width * 2.2,
+            left: canvas.borders.left - sizes.width * 2.2,
+            top: canvas.borders.top - sizes.height * 2.2,
+            bottom: canvas.borders.bottom - sizes.height * 2.2
         };
 
 

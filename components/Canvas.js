@@ -52,9 +52,9 @@ export const Canvas = () => {
         if (domTarget.current && isBrowser) {
             const sizes = getBoundingClientRect(domTarget.current);
             const borders = {
-                left: sizes.x,
-                right: sizes.x + sizes.width,
-                top: sizes.y,
+                left: sizes.left,
+                right: sizes.left + sizes.width,
+                top: sizes.top,
                 bottom: sizes.y + sizes.height
             };
             const parameter = {
