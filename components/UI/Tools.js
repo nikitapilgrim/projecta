@@ -105,16 +105,13 @@ function reducer(state, action) {
 export const Tools = () => {
     const [{x, y}, set] = useSpring(() => ({x: 0, y: 0}));
     const [stateTools, dispatch] = useReducer(reducer, globalInitialState);
+    const dragTarget = useRef(null);
 
-    const memoryTarget = useRef(false);
-    const bind = useDrag(({offset: [x, y], event, cancel, down}) => {
+    const bind = useDrag(({first,offset: [x, y], event, cancel, down}) => {
         const target = event.target;
-        if (!memoryTarget.current) memoryTarget.current = target;
-        if (memoryTarget.current && memoryTarget.current.closest('.ui-tools')) {
+        if (first) dragTarget.current = target;
+        if (dragTarget.current && dragTarget.current.classList.contains('draggable__icon')) {
             cancel();
-        }
-        if (!down) {
-            memoryTarget.current = false;
         }
         set({x, y})
     });

@@ -65,6 +65,7 @@ function lowestValueAndKey(obj) {
 }
 
 const DraggedIcon = memo(({url, update, data}) => {
+    const {Portal} = usePortal();
     const canvas = useAtom(canvasAtom);
     const target = useRef(null);
     const {attached} = data;
@@ -90,7 +91,6 @@ const DraggedIcon = memo(({url, update, data}) => {
             top: sizes.top,
             bottom: sizes.bottom + sizes.height
         };
-        console.log(sizes)
         const overlaped = overlap(canvas.borders, size);
         const to = {
             right: canvas.borders.right - sizes.width * 2.2,
@@ -147,9 +147,8 @@ const DraggedIcon = memo(({url, update, data}) => {
         }
     });
 
-
     return (
-        <Icon ref={target} url={url} {...bind()} style={{x, y, scale}}>
+        <Icon className={'draggable__icon'} ref={target} url={url} {...bind()} style={{x, y, scale}}>
             {attached && <Warning>
                 <Icon width={'16px'} height={'16px'} url={warningIcon}/>
             </Warning>}
@@ -167,7 +166,6 @@ export const Tool = ({icon, type, name, stateTools, dispatch}) => {
             {stateTools.map((item) => {
                 return <DraggedIcon data={item} update={update(item.id)} key={item.id} url={icon}/>
             })}
-
             <Name>
                 {name}
             </Name>
