@@ -11,7 +11,7 @@
     "@reatom/react": "^1.1.0",
     "@rehooks/window-size": "^1.0.2",
     "array-move": "^2.2.1",
-    "nanoid": "^3.0.2",
+    "nanoid": "^3.1.31",
     "next": "latest",
     "next-images": "^1.4.0",
     "rc-slider": "^9.2.4",
